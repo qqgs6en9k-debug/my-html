@@ -27,21 +27,20 @@ h1{
 
 #lastPass{
     background:white;
-    border-radius:15px;
-    padding:15px;
+    border-radius:10px;
+    padding:8px;
     text-align:center;
-    margin-bottom:15px;
-    box-shadow:0 2px 5px rgba(0,0,0,0.15);
+    margin-bottom:10px;
 }
 
 #lastNumber{
-    font-size:72px;
+    font-size:36px;
     font-weight:bold;
     color:#0057b8;
 }
 
 #lastName{
-    font-size:28px;
+    font-size:18px;
 }
 
 .controls{
@@ -131,14 +130,16 @@ thead{
 </head>
 <body>
 
-<h1>IA1 YAMAHA</h1>
+<h1>IA1 HONDA</h1>
 
 <div id="timer">00:00.000</div>
 
 <div id="lastPass">
-    <div>LAST PASS</div>
-    <div id="lastNumber">---</div>
-    <div id="lastName">---</div>
+    <div style=""font-size:14px;">
+    LAST PASS
+    </div>
+    <spin id="lastNumber">---</span>
+    <spin id="lastName">---</span>
 </div>
 
 <div class="controls">
@@ -515,7 +516,7 @@ function downloadCSV(){
     URL.createObjectURL(blob);
 
     a.download =
-    "IA1_YAMAHA.csv";
+    "IA1_HONDA.csv";
 
     a.click();
 
