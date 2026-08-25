@@ -82,7 +82,7 @@ h1{
 
 .riderBtn{
     width:100%;
-    height:200px;
+    height:140px;
     margin-bottom:15px;
     border:none;
     border-radius:15px;
@@ -107,6 +107,25 @@ th,td{
 thead{
     background:#efefef;
 }
+
+.riderTitle{
+    font-size:42px;
+    font-weight:bold;
+    text-align:center;
+}
+
+.lapRow{
+    display:flex;
+    justify-content:space-around;
+    margin-top:15px;
+    font-size:24px;
+    font-weight:bold;
+}
+
+.menuBtn{
+    background:#444;
+}
+
 
 </style>
 </head>
@@ -147,6 +166,11 @@ thead{
     <button class="mainBtn csvBtn"
         onclick="downloadCSV()">
         CSV保存
+    </button>
+
+    <button class="mainBtn menuBtn"
+        onclick="location.href='index.html'">
+        MENU
     </button>
 
 </div>
@@ -213,8 +237,24 @@ function createButtons(){
 
         btn.className = "riderBtn";
 
-        btn.innerHTML =
-        `#${rider.number}<br>${rider.name}`;
+       btn.innerHTML =
+        `
+    <div class="riderTitle">
+        #${rider.number} ${rider.name}
+        </div>
+
+        <div class="lapRow">
+
+        <span id="latest_${rider.number}">
+        最新: ---
+        </span>
+
+        <span id="best_${rider.number}">
+        BEST: ---
+        </span>
+
+</div>
+`;
 
         btn.onclick = function(){
 
@@ -368,23 +408,38 @@ function recordLap(rider,btn){
 
     });
 
-    history.push(rider.number);
+history.push(rider.number);
 
-    document.getElementById(
-    "lastNumber"
-    ).innerText =
-    "#" + rider.number;
+document.getElementById(
+"lastNumber"
+).innerText =
+"#" + rider.number;
 
-    document.getElementById(
-    "lastName"
-    ).innerText =
-    rider.name;
+document.getElementById(
+"lastName"
+).innerText =
+rider.name;
 
-    addLog(
-        rider.number,
-        laps.length,
-        lapTime
-    );
+document.getElementById(
+`latest_${rider.number}`
+).innerText =
+`最新: ${lapTime.toFixed(3)}`;
+
+const best =
+Math.min(
+    ...laps.map(x => x.lapTime)
+);
+
+document.getElementById(
+`best_${rider.number}`
+).innerText =
+`BEST: ${best.toFixed(3)}`;
+
+addLog(
+    rider.number,
+    laps.length,
+    lapTime
+);
 
 }
 
