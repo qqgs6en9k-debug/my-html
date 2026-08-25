@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>IA1 YAMAHA Lap Timer</title>
+
+<style>
+
+body{
+    font-family:sans-serif;
+    margin:10px;
+    background:#f2f2f2;
+}
+
+h1{
+    text-align:center;
+    color:#0057b8;
+}
+
+#timer{
+    text-align:center;
+    font-size:52px;
+    font-weight:bold;
+    margin:10px 0 20px;
+}
+
+#lastPass{
+    background:white;
+    border-radius:15px;
+    padding:15px;
+    text-align:center;
+    margin-bottom:15px;
+    box-shadow:0 2px 5px rgba(0,0,0,0.15);
+}
+
+#lastNumber{
+    font-size:72px;
+    font-weight:bold;
+    color:#0057b8;
+}
+
+#lastName{
+    font-size:28px;
+}
+
+.controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    justify-content:center;
+    margin-bottom:15px;
+}
+
+.mainBtn{
+    font-size:18px;
+    padding:12px 18px;
+    border:none;
+    border-radius:10px;
+    color:white;
+}
+
+.startBtn{
+    background:#28a745;
+}
+
+.stopBtn{
+    background:#ff9800;
+}
+
+.resetBtn{
+    background:#d32f2f;
+}
+
+.undoBtn{
+    background:#607d8b;
+}
+
+.csvBtn{
+    background:#1976d2;
+}
+
+.riderBtn{
+    width:100%;
+    height:200px;
+    margin-bottom:15px;
+    border:none;
+    border-radius:15px;
+    background:#0057b8;
+    color:white;
+    font-size:42px;
+    font-weight:bold;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    background:white;
+}
+
+th,td{
+    border:1px solid #ddd;
+    padding:8px;
+    text-align:center;
+}
+
+thead{
+    background:#efefef;
+}
+
+</style>
+</head>
+<body>
+
+<h1>IA1 YAMAHA</h1>
+
+<div id="timer">00:00.000</div>
+
+<div id="lastPass">
+    <div>LAST PASS</div>
+    <div id="lastNumber">---</div>
+    <div id="lastName">---</div>
+</div>
+
+<div class="controls">
+
+    <button class="mainBtn startBtn"
+        onclick="startTimer()">
+        START
+    </button>
+
+    <button class="mainBtn stopBtn"
+        onclick="stopTimer()">
+        STOP
+    </button>
+
+    <button class="mainBtn resetBtn"
+        onclick="resetTimer()">
+        RESET
+    </button>
+
+    <button class="mainBtn undoBtn"
+        onclick="undoLast()">
+        戻す
+    </button>
+
+    <button class="mainBtn csvBtn"
+        onclick="downloadCSV()">
+        CSV保存
+    </button>
+
+</div>
+
+<div id="buttons"></div>
+
+<table>
+
+<thead>
+<tr>
+    <th>Rider</th>
+    <th>Lap</th>
+    <th>Lap Time(s)</th>
+</tr>
+</thead>
+
+<tbody id="logBody"></tbody>
+
+</table>
+
+<script>
+
+/* ==================================================
+   ライダー設定
+   ここだけ変更すればOK
+================================================== */
+
+const riders = [
+
+    {
+        number:"2",
+        name:"JAY"
+    },
+
+    {
+        number:"3",
+        name:"大城"
+    }
+
+];
+
+/* ================================================== */
+
+let startTime = null;
+let timerInterval = null;
+let elapsedBeforeStop = 0;
+
+const lapData = {};
+const history = [];
+
+createButtons();
+
+function createButtons(){
+
+    const area =
+    document.getElementById("buttons");
+
+    riders.forEach(rider=>{
+
+        lapData[rider.number] = [];
+
+        const btn =
+        document.createElement("button");
+
+        btn.className = "riderBtn";
+
+        btn.innerHTML =
+        `#${rider.number}<br>${rider.name}`;
+
+        btn.onclick = function(){
+
+            recordLap(rider,btn);
+
+        };
+
+        area.appendChild(btn);
+
+    });
+
+}
+
+function updateClock(ms){
+
+    const min =
+    Math.floor(ms/60000);
+
+    const sec =
+    Math.floor((ms%60000)/1000);
+
+    const mil =
+    ms%1000;
+
+    document.getElementById("timer").innerText =
+    `${String(min).padStart(2,'0')}:${String(sec).padStart(2,'0')}.${String(mil).padStart(3,'0')}`;
+
+}
+
+function startTimer(){
+
+    if(startTime === null){
+
+        startTime =
+        Date.now() - elapsedBeforeStop;
+
+    }
+
+    clearInterval(timerInterval);
+
+    timerInterval = setInterval(()=>{
+
+        updateClock(
+            Date.now()-startTime
+        );
+
+    },10);
+
+}
+
+function stopTimer(){
+
+    if(startTime === null){
+        return;
+    }
+
+    elapsedBeforeStop =
+    Date.now()-startTime;
+
+    clearInterval(timerInterval);
+
+}
+
+function resetTimer(){
+
+    const result =
+    confirm(
+    "タイマーとラップ記録を全削除しますか？"
+    );
+
+    if(!result){
+        return;
+    }
+
+    clearInterval(timerInterval);
+
+    startTime = null;
+    elapsedBeforeStop = 0;
+
+    updateClock(0);
+
+    history.length = 0;
+
+    Object.keys(lapData)
+    .forEach(key=>{
+
+        lapData[key] = [];
+
+    });
+
+    document.getElementById(
+    "logBody"
+    ).innerHTML = "";
+
+    document.getElementById(
+    "lastNumber"
+    ).innerText = "---";
+
+    document.getElementById(
+    "lastName"
+    ).innerText = "---";
+
+}
+
+function recordLap(rider,btn){
+
+    if(startTime === null){
+
+        alert(
+        "STARTを押してください"
+        );
+
+        return;
+
+    }
+
+    btn.style.background =
+    "#28a745";
+
+    setTimeout(()=>{
+
+        btn.style.background =
+        "#0057b8";
+
+    },300);
+
+    const now =
+    (Date.now()-startTime)/1000;
+
+    const laps =
+    lapData[rider.number];
+
+    let lapTime;
+
+    if(laps.length===0){
+
+        lapTime = now;
+
+    }else{
+
+        lapTime =
+        now - laps[laps.length-1].total;
+
+    }
+
+    laps.push({
+
+        lap: laps.length + 1,
+        lapTime: lapTime,
+        total: now
+
+    });
+
+    history.push(rider.number);
+
+    document.getElementById(
+    "lastNumber"
+    ).innerText =
+    "#" + rider.number;
+
+    document.getElementById(
+    "lastName"
+    ).innerText =
+    rider.name;
+
+    addLog(
+        rider.number,
+        laps.length,
+        lapTime
+    );
+
+}
+
+function addLog(number,lap,time){
+
+    const body =
+    document.getElementById("logBody");
+
+    const row =
+    body.insertRow(0);
+
+    row.insertCell(0).innerText =
+    "#" + number;
+
+    row.insertCell(1).innerText =
+    lap;
+
+    row.insertCell(2).innerText =
+    time.toFixed(3);
+
+}
+
+function undoLast(){
+
+    if(history.length===0){
+        return;
+    }
+
+    const rider =
+    history.pop();
+
+    lapData[rider].pop();
+
+    const body =
+    document.getElementById("logBody");
+
+    if(body.rows.length>0){
+
+        body.deleteRow(0);
+
+    }
+
+}
+
+function downloadCSV(){
+
+    let csv =
+    "Number,Lap,LapTime\n";
+
+    Object.keys(lapData)
+    .forEach(number=>{
+
+        lapData[number]
+        .forEach(item=>{
+
+            csv +=
+            `${number},${item.lap},${item.lapTime.toFixed(3)}\n`;
+
+        });
+
+    });
+
+    const blob =
+    new Blob(
+        [csv],
+        {type:"text/csv"}
+    );
+
+    const a =
+    document.createElement("a");
+
+    a.href =
+    URL.createObjectURL(blob);
+
+    a.download =
+    "IA1_YAMAHA.csv";
+
+    a.click();
+
+}
+
+</script>
+
+</body>
+</html>
