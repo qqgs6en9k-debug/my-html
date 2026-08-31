@@ -515,7 +515,8 @@ function recordLap(rider,btn){
 
         lap: laps.length + 1,
         lapTime: lapTime,
-        total: now
+        total: now,
+        timestamp: new Date()
 
     });
 
@@ -627,7 +628,7 @@ function showHistory(rider){
 function downloadCSV(){
 
     let csv =
-    "Number,Lap,LapTime\n";
+    "Number,Lap,LapTime,Time\n";
 
     Object.keys(lapData)
     .forEach(number=>{
@@ -636,7 +637,7 @@ function downloadCSV(){
         .forEach(item=>{
 
             csv +=
-            `${number},${item.lap},${item.lapTime.toFixed(3)}\n`;
+            `${number},${item.lap},${item.lapTime.toFixed(3)},${item.timestamp.toLocaleTimeString()}\n`;
 
         });
 
@@ -654,8 +655,12 @@ function downloadCSV(){
     a.href =
     URL.createObjectURL(blob);
 
-    a.download =
-    "ia1_yamaha.csv";
+    const now = new Date();
+
+        const fileName =
+        `IA1_${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}.csv`;
+
+    a.download = fileName;
 
     a.click();
 
