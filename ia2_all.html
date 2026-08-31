@@ -316,25 +316,6 @@ function createButtons(){
         }
 );
 
-    function showHistory(rider){
-
-        const laps =
-        lapData[rider.number];
-
-            let msg =
-            `#${rider.number} ${rider.name}\n\n`;
-
-        laps.forEach(item=>{
-
-        msg +=
-        `Lap${item.lap}  ${item.lapTime.toFixed(3)}\n`;
-
-    });
-
-    alert(msg);
-
-}
-
         btn.innerHTML =
         `
         <div class="riderTitle">
