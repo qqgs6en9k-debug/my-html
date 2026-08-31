@@ -613,6 +613,24 @@ function undoLast(){
 
 }
 
+function showHistory(rider){
+
+    const laps = lapData[rider.number];
+
+    let msg =
+    `#${rider.number} ${rider.name}\n\n`;
+
+    laps.forEach(item=>{
+
+        msg +=
+        `Lap${item.lap}  ${item.lapTime.toFixed(3)}\n`;
+
+    });
+
+    alert(msg);
+
+}
+
 function downloadCSV(){
 
     let csv =
@@ -630,23 +648,6 @@ function downloadCSV(){
         });
 
     });
-
-function showHistory(rider){
-
-    const laps = lapData[rider.number];
-
-    let msg =
-    `#${rider.number} ${rider.name}\n\n`;
-
-    laps.forEach(item=>{
-
-        msg +=
-        `Lap${item.lap}  ${item.lapTime.toFixed(3)}\n`;
-
-    });
-
-    alert(msg);
-
 }
 
     const blob =
