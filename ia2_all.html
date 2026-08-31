@@ -283,9 +283,61 @@ function createButtons(){
         btn.className = "riderBtn";
         btn.style.background = "#666666";
 
+        let pressTimer;
+
+        btn.onclick = function(){
+
+            recordLap(rider,btn);
+
+        };
+
+    btn.addEventListener(
+        "touchstart",
+        function(){
+
+            pressTimer =
+            setTimeout(()=>{
+
+                showHistory(rider);
+
+            },2000);
+
+        }
+    );
+
+    btn.addEventListener(
+        "touchend",
+        function(){
+
+            clearTimeout(
+                pressTimer
+            );
+
+        }
+);
+
+    function showHistory(rider){
+
+        const laps =
+        lapData[rider.number];
+
+            let msg =
+            `#${rider.number} ${rider.name}\n\n`;
+
+        laps.forEach(item=>{
+
+        msg +=
+        `Lap${item.lap}  ${item.lapTime.toFixed(3)}\n`;
+
+    });
+
+    alert(msg);
+
+}
+
         btn.innerHTML =
         `
-    <div class="riderTitle">
+        <div class="riderTitle">
         #${rider.number} ${rider.name}
         </div>
 
@@ -578,6 +630,24 @@ function downloadCSV(){
         });
 
     });
+
+function showHistory(rider){
+
+    const laps = lapData[rider.number];
+
+    let msg =
+    `#${rider.number} ${rider.name}\n\n`;
+
+    laps.forEach(item=>{
+
+        msg +=
+        `Lap${item.lap}  ${item.lapTime.toFixed(3)}\n`;
+
+    });
+
+    alert(msg);
+
+}
 
     const blob =
     new Blob(
