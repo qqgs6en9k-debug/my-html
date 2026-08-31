@@ -263,6 +263,8 @@ let startTime = null;
 let timerInterval = null;
 let elapsedBeforeStop = 0;
 
+let isRunning = false;
+
 const lapData = {};
 const history = [];
 
@@ -283,54 +285,42 @@ function createButtons(){
         btn.className = "riderBtn";
         btn.style.background = "#666666";
 
-        let pressTimer;
-
-        btn.onclick = function(){
-
-            recordLap(rider,btn);
-
-        };
-
-    btn.addEventListener(
-        "touchstart",
-        function(){
-
-            pressTimer =
-            setTimeout(()=>{
-
-                showHistory(rider);
-
-            },2000);
-
-        }
-    );
-
-    btn.addEventListener(
-        "touchend",
-        function(){
-
-            clearTimeout(
-                pressTimer
-            );
-
-        }
-);
+    
 
         btn.innerHTML =
-        `
-        <div class="riderTitle">
+`
+<div style="
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+">
+
+    <div class="riderTitle">
         #${rider.number} ${rider.name}
-        </div>
+    </div>
 
-        <div class="lapRow">
+    <button
+        onclick="event.stopPropagation();showHistoryByNumber('${rider.number}')"
+        style="
+            font-size:20px;
+            border:none;
+            background:transparent;
+            color:white;
+        ">
+        📋
+    </button>
 
-        <span id="latest_${rider.number}">
-        ---
-        </span>
+</div>
 
-        <span id="best_${rider.number}">
-        ---★ 
-        </span>
+<div class="lapRow">
+
+    <span id="latest_${rider.number}">
+    ---
+    </span>
+
+    <span id="best_${rider.number}">
+    ---★
+    </span>
 
 </div>
 `;
@@ -372,6 +362,8 @@ function startTimer(){
 
     }
 
+    isRunning = true;
+
     clearInterval(timerInterval);
 
     timerInterval = setInterval(()=>{
@@ -389,6 +381,8 @@ function stopTimer(){
     if(startTime === null){
         return;
     }
+
+    isRunning = false;
 
     elapsedBeforeStop =
     Date.now()-startTime;
@@ -412,6 +406,7 @@ function resetTimer(){
 
     startTime = null;
     elapsedBeforeStop = 0;
+    isRunning = false;
 
     updateClock(0);
 
@@ -465,7 +460,7 @@ function resetTimer(){
 
 function recordLap(rider,btn){
 
-    if(startTime === null){
+    if(!isRunning){
 
         alert(
         "STARTを押してください"
@@ -591,6 +586,17 @@ function undoLast(){
         body.deleteRow(0);
 
     }
+
+}
+
+function showHistoryByNumber(number){
+
+    const rider =
+    riders.find(
+        x => x.number == number
+    );
+
+    showHistory(rider);
 
 }
 

@@ -81,7 +81,7 @@ h1{
 
 .riderBtn{
     width:100%;
-    height:140px;
+    height:120px;
     margin-bottom:15px;
     border:none;
     border-radius:15px;
@@ -108,7 +108,7 @@ thead{
 }
 
 .riderTitle{
-    font-size:42px;
+    font-size:26px;
     font-weight:bold;
     text-align:center;
 }
@@ -117,7 +117,7 @@ thead{
     display:flex;
     justify-content:space-around;
     margin-top:15px;
-    font-size:24px;
+    font-size:18px;
     font-weight:bold;
 }
 
@@ -125,6 +125,11 @@ thead{
     background:#444;
 }
 
+#buttons{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+}
 
 </style>
 </head>
@@ -264,6 +269,8 @@ let startTime = null;
 let timerInterval = null;
 let elapsedBeforeStop = 0;
 
+let isRunning = false;
+
 const lapData = {};
 const history = [];
 
@@ -284,21 +291,42 @@ function createButtons(){
         btn.className = "riderBtn";
         btn.style.background = "#666666";
 
+    
+
         btn.innerHTML =
-        `
+`
+<div style="
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+">
+
     <div class="riderTitle">
         #${rider.number} ${rider.name}
-        </div>
+    </div>
 
-        <div class="lapRow">
+    <button
+        onclick="event.stopPropagation();showHistoryByNumber('${rider.number}')"
+        style="
+            font-size:20px;
+            border:none;
+            background:transparent;
+            color:white;
+        ">
+        📋
+    </button>
 
-        <span id="latest_${rider.number}">
-        ---
-        </span>
+</div>
 
-        <span id="best_${rider.number}">
-        ---★ 
-        </span>
+<div class="lapRow">
+
+    <span id="latest_${rider.number}">
+    ---
+    </span>
+
+    <span id="best_${rider.number}">
+    ---★
+    </span>
 
 </div>
 `;
@@ -340,6 +368,8 @@ function startTimer(){
 
     }
 
+    isRunning = true;
+
     clearInterval(timerInterval);
 
     timerInterval = setInterval(()=>{
@@ -357,6 +387,8 @@ function stopTimer(){
     if(startTime === null){
         return;
     }
+
+    isRunning = false;
 
     elapsedBeforeStop =
     Date.now()-startTime;
@@ -380,6 +412,7 @@ function resetTimer(){
 
     startTime = null;
     elapsedBeforeStop = 0;
+    isRunning = false;
 
     updateClock(0);
 
@@ -433,7 +466,7 @@ function resetTimer(){
 
 function recordLap(rider,btn){
 
-    if(startTime === null){
+    if(!isRunning){
 
         alert(
         "STARTを押してください"
@@ -559,6 +592,35 @@ function undoLast(){
         body.deleteRow(0);
 
     }
+
+}
+
+function showHistoryByNumber(number){
+
+    const rider =
+    riders.find(
+        x => x.number == number
+    );
+
+    showHistory(rider);
+
+}
+
+function showHistory(rider){
+
+    const laps = lapData[rider.number];
+
+    let msg =
+    `#${rider.number} ${rider.name}\n\n`;
+
+    laps.forEach(item=>{
+
+        msg +=
+        `Lap${item.lap}  ${item.lapTime.toFixed(3)}\n`;
+
+    });
+
+    alert(msg);
 
 }
 
