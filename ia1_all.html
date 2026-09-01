@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>IA1 Lap Timer</title>
+<title>IA1/IA2 Lap Timer</title>
 
 <style>
 
@@ -135,7 +135,7 @@ thead{
 </head>
 <body>
 
-<h1>IA1</h1>
+<h1>IA1/IA2</h1>
 
 <div id="timer">00:00.000</div>
 
@@ -226,14 +226,14 @@ const riders = [
     },
 
     {
-        number:"999",
-        name:"横山",
-        color:"#00a651"
+        number:"55",
+        name:"田中",
+        color:"#0057b8"
     },
 
     {
-        number:"4",
-        name:"大塚",
+        number:"51",
+        name:"柳瀬",
         color:"#d60000"
     },
 
@@ -658,7 +658,7 @@ function downloadCSV(){
     const now = new Date();
 
         const fileName =
-        `IA1_${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}.csv`;
+        `IA1_IA2_${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}.csv`;
 
     a.download = fileName;
 
