@@ -146,7 +146,7 @@ thead{
     <input
         id="minLap"
         type="number"
-        value="40"
+        value="80"
         style="width:60px;"
     >
 
@@ -292,6 +292,8 @@ let isRunning = false;
 const lapData = {};
 const history = [];
 
+const riderActive = {};
+
 createButtons();
 
 setInterval(
@@ -308,13 +310,16 @@ function createButtons(){
 
         lapData[rider.number] = [];
 
+        riderActive[rider.number] = false;
+
         const btn =
         document.createElement("button");
 
+        btn.id =
+        `btn_${rider.number}`;
+
         btn.className = "riderBtn";
         btn.style.background = "#666666";
-
-    
 
         btn.innerHTML =
 `
@@ -349,6 +354,17 @@ function createButtons(){
         📋
     </button>
 
+    <button
+        onclick="event.stopPropagation();toggleActive('${rider.number}')"
+        style="
+            font-size:18px;
+            border:none;
+            background:transparent;
+            color:white;
+        ">
+        🚫
+    </button>
+
 </div>
 
 <div class="lapRow">
@@ -358,7 +374,7 @@ function createButtons(){
     </span>
 
     <span id="best_${rider.number}">
-    ---★
+    ★---
     </span>
 
 </div>
@@ -379,6 +395,8 @@ function createButtons(){
 function updateRunTime(){
 
     riders.forEach(rider => {
+
+        if(!riderActive[rider.number]){return;}
 
         const laps = lapData[rider.number];
 
@@ -401,7 +419,7 @@ function updateRunTime(){
         document.getElementById(
             `run_${rider.number}`
         ).innerText =
-        `${min}:${String(remain).padStart(5,'0')}`;
+        formatLap(elapsed);
 
 console.log(
     rider.number,
@@ -538,13 +556,15 @@ function recordLap(rider,btn){
 
     if(!isRunning){
 
-        alert(
-        "STARTを押してください"
-        );
+    alert(
+    "STARTを押してください"
+    );
 
-        return;
+    return;
 
     }
+
+riderActive[rider.number] = true;
 
     btn.style.background =
     "#ffffff";
@@ -688,12 +708,30 @@ function formatLap(sec){
     Math.floor(sec / 60);
 
     const remain =
-    (sec % 60).toFixed(3);
+    (sec % 60).toFixed(1);
 
-    return `${min}:${remain.padStart(6,'0')}`;
+    return `${min}:${remain.padStart(4,'0')}`;
 
 }
 
+function toggleActive(number){
+
+    riderActive[number] = false;
+
+    const btn =
+    document.getElementById(
+        `btn_${number}`
+    );
+
+    btn.style.background =
+    "#666666";
+
+    document.getElementById(
+        `run_${number}`
+    ).innerText =
+    "0:00.0";
+
+}
 
 function showHistoryByNumber(number){
 
@@ -719,7 +757,7 @@ function showHistory(rider){
 
         rideMinutes =
         Math.floor(
-        (last - start) / 60000
+            (last - start) / 60000
         );
 
     }
@@ -733,7 +771,7 @@ function showHistory(rider){
     laps.forEach(item=>{
 
         msg +=
-        `Lap${item.lap}  ${formatLap(item.lapTime)}\n`;
+        `Lap${item.lap} ${formatLap(item.lapTime)}\n`;
 
     });
 
