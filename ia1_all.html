@@ -256,9 +256,9 @@ const riders = [
     },
 
     {
-        number:"97",
-        name:"内田",
-        color:"#00a651"
+        number:"46",
+        name:"吉田",
+        color:"#d60000"
     },
 
     {
@@ -782,7 +782,7 @@ function showHistory(rider){
 function downloadCSV(){
 
     let csv =
-    "Number,Lap,LapTime,Time\n";
+    "Number,Lap,LapTime(mm:ss.s),Time\n";
 
     Object.keys(lapData)
     .forEach(number=>{
@@ -791,7 +791,7 @@ function downloadCSV(){
         .forEach(item=>{
 
             csv +=
-            `${number},${item.lap},${item.lapTime.toFixed(3)},${item.timestamp.toLocaleTimeString()}\n`;
+            `${number},${item.lap},${formatLap(item.lapTime)},${item.timestamp.toLocaleTimeString()}\n`;
 
         });
 
