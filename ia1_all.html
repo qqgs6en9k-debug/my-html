@@ -294,6 +294,11 @@ const history = [];
 
 createButtons();
 
+setInterval(
+    updateRunTime,
+    100
+);
+
 function createButtons(){
 
     const area =
@@ -313,6 +318,16 @@ function createButtons(){
 
         btn.innerHTML =
 `
+<div
+    id="run_${rider.number}"
+    style="
+        font-size:18px;
+        text-align:center;
+    "
+>
+    0:00
+</div>
+
 <div style="
     display:flex;
     justify-content:space-between;
@@ -356,6 +371,43 @@ function createButtons(){
         };
 
         area.appendChild(btn);
+
+    });
+
+}
+
+function updateRunTime(){
+
+    riders.forEach(rider => {
+
+        const laps = lapData[rider.number];
+
+        if(laps.length === 0){
+            return;
+        }
+
+        const start =
+        laps[laps.length-1].timestamp;
+
+        const elapsed =
+        (new Date() - start) / 1000;
+
+        const min =
+        Math.floor(elapsed / 60);
+
+        const remain =
+        (elapsed % 60).toFixed(2);
+
+        document.getElementById(
+            `run_${rider.number}`
+        ).innerText =
+        `${min}:${String(remain).padStart(5,'0')}`;
+
+console.log(
+    rider.number,
+    min,
+    remain
+);
 
     });
 
@@ -579,7 +631,7 @@ document.getElementById(
 ).innerText =
 best === null
 ? "---★"
-: best.toFixed(3)+"★";
+: formatLap(best)+"★";
 
 addLog(
     rider.number,
@@ -681,7 +733,7 @@ function showHistory(rider){
     laps.forEach(item=>{
 
         msg +=
-        `Lap${item.lap}  ${item.lapTime.toFixed(3)}\n`;
+        `Lap${item.lap}  ${formatLap(item.lapTime)}\n`;
 
     });
 
